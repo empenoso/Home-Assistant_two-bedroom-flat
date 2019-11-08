@@ -6,3 +6,6 @@ _________
 
 Текущий вид интерфейса Home Assistant:
 ![Текущий вид интерфейса Home Assistant](https://github.com/empenoso/two-bedroom-flat-Home-Assistant/blob/master/2019_11_screenshot.png)
+
+
+:sound: В планах переход на прошивку [ESPHome](https://github.com/esphome/esphome)
