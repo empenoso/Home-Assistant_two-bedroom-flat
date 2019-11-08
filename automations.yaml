@@ -1,0 +1,178 @@
+######################################################
+#                                                    #
+#        Перезапуск камеры раз в несколько дней      #
+#                                                    #
+###################################################### 
+
+- alias: Camera reboot
+  trigger:
+    - platform: time
+      at: "11:00:00"
+  condition: 
+     condition: time
+     weekday:
+        - mon
+        - wed
+        - fri
+  action:
+    - service: homeassistant.turn_off
+      entity_id: switch.kamera_podezd
+    - delay: '00:01:00'
+    - service: homeassistant.turn_on
+      entity_id: switch.kamera_podezd
+
+######################################################
+#                                                    #
+# Узнать состояние всех sonoffs после перезапуска HA #
+#                                                    #
+###################################################### 
+
+- alias: SONOFF state on HA start-up
+  trigger:
+    platform: homeassistant
+    event: start
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/sonoffs/POWER"
+        payload: ""
+    - delay: '00:00:05'
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/sonoffs/POWER2"
+        payload: ""
+
+######################################################
+#                                                    #
+#           Time to OLED-дисплей SSD1306             #
+#                                                    #
+###################################################### 
+
+- alias: Time to display
+  trigger:
+    - platform: time_pattern
+      minutes: '/1'
+      seconds: 5
+  condition: []
+  action:
+    - service: rest_command.display_clear_small
+    - delay: '00:00:01'
+    - service: rest_command.display_clear_big
+    - delay: '00:00:01'
+    - service: rest_command.display_send_time_small
+    - service: rest_command.display_send_time
+    - delay: '00:00:25'
+    - service: rest_command.display_clear_small
+    - delay: '00:00:01'
+    - service: rest_command.display_clear_big
+    - delay: '00:00:01'
+    - service: rest_command.display_send_weather_small
+    - service: rest_command.display_send_weather
+
+###################################################
+#                                                 #
+#           Кнопка выключить всё                  #
+#                                                 #
+################################################### 
+
+- alias: Turn off all
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.vykliuchit_vsio
+      from: 'off'
+      to: 'on'
+  condition: []
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/ElectroDragon1/POWER1"
+        payload: "OFF"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/ElectroDragon2/POWER1"
+        payload: "OFF"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/ElectroDragon2/POWER2"
+        payload: "OFF"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/Table_lamp/POWER1"
+        payload: "OFF"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/ElectroDragon3/POWER1"
+        payload: "OFF"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/ElectroDragon3/POWER2"
+        payload: "OFF"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/Living_room/POWER1"
+        payload: "OFF"
+    - delay: '00:00:20'
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/ElectroDragon1/POWER2"
+        payload: "OFF"
+
+######################################################
+#                                                    #
+#                Датчики мега - опрос                #
+#                                                    #
+###################################################### 
+
+- alias: Mega MQTT Sensor
+  trigger:
+    - platform: time_pattern
+      minutes: '/5'
+      seconds: 10
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "megad/7/cmd"
+        payload: "get:0" #Темп/влажн на улице
+    - delay: '00:00:10'
+    - service: mqtt.publish
+      data:
+        topic: "megad/7/cmd"
+        payload: "get:6" #1 Темп. бат спальни 2 Темп. у окна кухни 3 Темп. в гостиной
+    - delay: '00:00:10'
+    - service: mqtt.publish
+      data:
+        topic: "megad/7/cmd"
+        payload: "get:7" #1 Темп трубы ХВС 2 Темп трубы ГВС
+    - delay: '00:00:10'
+    - service: mqtt.publish
+      data:
+        topic: "megad/7/cmd"
+        payload: "get:36" #Датчик шума
+
+###################################################
+#                                                 #
+#            Счетчики воды                        #
+#                                                 #
+################################################### 
+
+- alias: Cold water count
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.kholodnaia_voda
+      from: 'off'
+      to: 'on'
+  condition: []
+  action:
+    - service: counter.increment
+      entity_id: counter.water_cold_counter
+
+- alias: Hot water count
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.goriachaia_voda
+      from: 'off'
+      to: 'on'
+  condition: []
+  action:
+    - service: counter.increment
+      entity_id: counter.water_hot_counter

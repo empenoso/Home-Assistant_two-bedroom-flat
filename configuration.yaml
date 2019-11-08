@@ -1,0 +1,403 @@
+###################################################
+#                                                 #
+#     Home Assistant  Configuration               #
+#                                                 #
+###################################################
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+homeassistant:
+    name: !secret name
+    time_zone: Asia/Yekaterinburg
+    unit_system: metric
+    customize: !include customize.yaml
+
+group:  !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+
+###################################################
+#                                                 #
+#                     Panel                       #
+#                                                 #
+################################################### 
+
+panel_iframe:
+  tasmoadmin:
+    title: TasmoAdmin
+    icon: mdi:car-esp
+    url: http://192.168.8.8:9541/devices
+
+####################################################
+#                                                  #
+#                    sensor                        #
+#                                                  #
+####################################################
+
+sensor:
+  - platform: command_line
+    name: "Освещенность улицы"
+    command: "/usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=0&scl=1&i2c_dev=max44009'"
+    value_template: '{{ (value|float) | round(1) }}'
+    scan_interval: 300
+  - platform: mqtt
+    name: "Темп. на улице"
+    device_class: temperature
+    state_topic: "megad/7/0"
+    value_template: '{{ value_json.value.temp }}'
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Влажность на улице"
+    device_class: humidity
+    state_topic: "megad/7/0"
+    value_template: '{{ value_json.value.hum }}'
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Темп. хол. трубы"
+    device_class: temperature
+    state_topic: "megad/7/6"
+    value_template: '{{ value_json["value"]["961b01000080"] }}'
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Темп. гор. трубы"
+    device_class: temperature
+    state_topic: "megad/7/6"
+    value_template: '{{ value_json["value"]["141201000080"] }}'
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Темп. кухня"
+    device_class: temperature
+    state_topic: "megad/7/7"
+    value_template: >- #еще вариант: https://community.home-assistant.io/t/trigger-numeric-state-below-value-not-firing/28911
+      {%- if value_json.value.ff4902731604|float >= 0 and value_json.value.ff4902731604|float <= 70 -%}
+      {{ value_json.value.ff4902731604 | round(1) }}
+      {%- else -%}
+      nan
+      {%- endif -%}
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Темп. гостиная"
+    device_class: temperature
+    state_topic: "megad/7/7"
+    #value_template: '{{ value_json.value.ff04f2711605 }}'
+    value_template: >-
+      {%- if value_json.value.ff04f2711605|float >= 0 and value_json.value.ff04f2711605|float <= 70 -%}
+      {{ value_json.value.ff04f2711605 | round(1) }}
+      {%- else -%}
+      nan
+      {%- endif -%}
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Темп. бат. спальни"
+    device_class: temperature
+    state_topic: "megad/7/7"
+    value_template: >-
+      {%- if value_json.value.fff9b7731604|float >= 0 and value_json.value.fff9b7731604|float <= 70 -%}
+      {{ value_json.value.fff9b7731604 | round(1) }}
+      {%- else -%}
+      nan
+      {%- endif -%}
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Датчик шума"
+    device_class: signal_strength
+    state_topic: "megad/7/36"
+    value_template: "{{ (value_json.value|float/1023*3.3*50) | round(1) }}"    
+    unit_of_measurement: "dBA"
+
+  - platform: filter
+    name: "Шум"
+    entity_id: sensor.datchik_shuma
+    filters:
+      - filter: outlier
+        window_size: 4
+        radius: 2.0
+      - filter: lowpass
+        time_constant: 10
+      - filter: time_simple_moving_average
+        window_size: 00:05
+        precision: 2
+
+  - platform: snmp #https://www.ab-log.ru/forum/viewtopic.php?t=1004&start=400
+    name: "RouterOS Wireless" 
+    host: 192.168.8.1
+    baseoid: .1.3.6.1.4.1.14988.1.1.1.3.1.6.1
+    accept_errors: true
+    unit_of_measurement: "pc"    
+
+  - platform: openweathermap
+    api_key: !secret openweathermap_api_key
+    language: ru
+    monitored_conditions:
+      - weather
+      - temperature
+
+  - platform: template 
+    sensors:
+        water_cold_counter_m3:
+            friendly_name: "ХВС показания"
+            unit_of_measurement: 'm3'
+            value_template: "{{ (states('counter.water_cold_counter') | float)/1000 }}"    
+        water_hot_counter_m3:
+            friendly_name: "ГВС показания"
+            unit_of_measurement: 'm3'
+            value_template: "{{ (states('counter.water_hot_counter') | float)/1000 }}"  
+        energy_counter:
+            friendly_name: "Счетчик э/э"
+            unit_of_measurement: ''
+            value_template: "{{ (states('energy_counter') | float)/1 }}"  
+        illuminance:
+            friendly_name: "Освещенность улицы"
+            device_class: illuminance
+            unit_of_measurement: "lx"
+            entity_id: sensor.osveshchennost_ulitsy
+            value_template: "{{ states.sensor.osveshchennost_ulitsy.state }}"  
+
+####################################################
+#                                                  #
+#                    binary_sensor                 #
+#                                                  #
+####################################################
+  
+binary_sensor:
+  - platform: mqtt
+    name: "Входная дверь"
+    device_class: door
+    state_topic: "megad/7/5"
+    value_template: "{{ value_json.value }}"
+    qos: 1
+    payload_on: "OFF"
+    payload_off: "ON"
+  - platform: mqtt
+    name: "Выключить всё"
+    device_class: moving
+    state_topic: "megad/7/2"
+    value_template: "{{ value_json.value }}"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+  - platform: mqtt
+    name: "Домофон"
+    device_class: sound
+    state_topic: "megad/7/4"
+    value_template: "{{ value_json.value }}"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+  - platform: mqtt
+    name: "Холодная вода"
+    device_class: opening
+    state_topic: "megad/7/8"
+    value_template: "{{ value_json.value }}"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+  - platform: mqtt
+    name: "Горячая вода"
+    device_class: opening
+    state_topic: "megad/7/9"
+    value_template: "{{ value_json.value }}"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+  - platform: mqtt
+    name: "Счетчик э/э"
+    device_class: opening
+    state_topic: "megad/7/10"
+    value_template: "{{ value_json.value }}"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+
+####################################################
+#                                                  #
+#                    light                        #
+#                                                  #
+####################################################
+
+light:
+  - platform: mqtt
+    name: "Туалет"
+    state_topic: "stat/ElectroDragon1/RESULT"
+    value_template: "{{ value_json.POWER1 }}"
+    command_topic: "cmnd/ElectroDragon1/POWER1"
+    availability_topic: "tele/ElectroDragon1/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "Коридор"
+    state_topic: "stat/ElectroDragon1/RESULT"
+    value_template: "{{ value_json.POWER2 }}"
+    command_topic: "cmnd/ElectroDragon1/POWER2"
+    availability_topic: "tele/ElectroDragon1/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "Ванна"
+    state_topic: "stat/ElectroDragon2/RESULT"
+    value_template: "{{ value_json.POWER1 }}"
+    command_topic: "cmnd/ElectroDragon2/POWER1"
+    availability_topic: "tele/ElectroDragon2/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "Кухня"
+    state_topic: "stat/ElectroDragon2/RESULT"
+    value_template: "{{ value_json.POWER2 }}"
+    command_topic: "cmnd/ElectroDragon2/POWER2"
+    availability_topic: "tele/ElectroDragon2/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "Спальня"
+    state_topic: "stat/ElectroDragon3/RESULT"
+    value_template: "{{ value_json.POWER1 }}"
+    command_topic: "cmnd/ElectroDragon3/POWER1"
+    availability_topic: "tele/ElectroDragon3/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "Кладовка"
+    state_topic: "stat/ElectroDragon3/RESULT"
+    value_template: "{{ value_json.POWER2 }}"
+    command_topic: "cmnd/ElectroDragon3/POWER2"
+    availability_topic: "tele/ElectroDragon3/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "Настольная лампа"
+    state_topic: "stat/TableLamp/RESULT"
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/TableLamp/POWER"
+    availability_topic: "tele/TableLamp/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "Гостиная"
+    state_topic: "stat/Living_room/RESULT"
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/Living_room/POWER"
+    availability_topic: "tele/Living_room/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+
+####################################################
+#                                                  #
+#                    switch                        #
+#                                                  #
+####################################################
+
+switch:
+  - platform: mqtt
+    name: "Камера подъезд"
+    state_topic: "stat/Camera12v/RESULT"
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/Camera12v/POWER"
+    availability_topic: "tele/Camera12v/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+
+cover:
+  - platform: command_line
+    covers:
+      water_overlap:
+        friendly_name: Вода
+        command_open: "/usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=11:0'; /usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=11:1'; sleep 20; /usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=11:0'"
+        command_close: "/usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=12:0'; /usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=12:1'; sleep 20; /usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=12:0'"
+        command_stop: "/usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=11:0'; /usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=11&cmd=12:0'"
+
+####################################################
+#                                                  #
+#                    another                       #
+#                                                  #
+####################################################
+
+counter:
+  water_cold_counter:
+    initial: 132699
+    step: 10
+  water_hot_counter:
+    initial: 76983
+    step: 10
+  energy_counter:
+    initial: 22029
+    step: 1
+
+rest_command:
+  display_send_time:
+    url: "http://192.168.8.7/sec/?pt=3&text=_{{ as_timestamp(now()) | timestamp_custom('%H;%M') }}" #одна цифра без нуля{{ now().hour }};{{ now().minute }}
+  display_send_time_small:
+    url: 'http://192.168.8.7/sec/?pt=3&text=___Time&col=30&row=0'
+  display_clear_big:
+    url: 'http://192.168.8.7/sec/?pt=3&text=ssssss'
+  display_clear_small:
+    url: 'http://192.168.8.7/sec/?pt=3&disp_cmd=1&row=0'
+  display_send_weather:
+    url: "http://192.168.8.7/sec/?pt=3&text=_{{states('sensor.owm_temperature')}}:"
+  display_send_weather_small:
+    url: 'http://192.168.8.7/sec/?pt=3&text=_Weather&col=30&row=0'
+
+camera:
+- platform: ffmpeg
+  name: Подъезд
+  input: !secret camera
+
+device_tracker:
+   - platform: snmp
+     host: 192.168.8.1
+     community: public
+     baseoid: 1.3.6.1.2.1.17.4.3.1.1
+#  - platform: nmap_tracker
+#    hosts:
+#      - 192.168.8.0/24
+#    home_interval: 10
+#    consider_home: 180
+#    exclude:
+#     - 192.168.8.8
+
+speedtestdotnet:
+  scan_interval:
+    minutes: 180
+  monitored_conditions:
+    - ping
+    - download
+    - upload
+
+# Text to speech
+tts:
+  - platform: google_translate
+    language: 'ru'
+    cache: true
+    cache_dir: /config/tts
+    time_memory: 300
+    service_name: google_say
+    base_url: http://192.168.8.8:8123
+

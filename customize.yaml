@@ -1,0 +1,10 @@
+## Настроки иконок и видимости ##
+sensor.water_cold_counter_m3:
+    icon: mdi:counter
+sensor.water_hot_counter_m3:
+    icon: mdi:counter
+sensor.energy_counter:
+    icon: mdi:counter
+cover.voda:
+    device_class: damper
+    icon: mdi:water-pump
