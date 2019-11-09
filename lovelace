@@ -1,0 +1,152 @@
+title: ХХХХХ
+views:
+  - badges: []
+    cards:
+      - cards:
+          - entity: light.koridor
+            hold_action:
+              action: more-info
+            icon: 'mdi:led-strip'
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+          - entity: light.vanna
+            hold_action:
+              action: more-info
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+          - entity: light.tualet
+            hold_action:
+              action: more-info
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+          - entity: light.kukhnia
+            hold_action:
+              action: more-info
+            icon: 'mdi:ceiling-light'
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+        type: horizontal-stack
+      - entity: group.all_lights
+        hold_action:
+          action: more-info
+        icon: 'mdi:close-circle-outline'
+        icon_height: 37px
+        name: ВКЛ/ВЫКЛ всё освещение
+        show_icon: true
+        show_name: true
+        tap_action:
+          action: toggle
+        type: entity-button
+      - cards:
+          - entity: light.spalnia
+            hold_action:
+              action: more-info
+            icon: 'mdi:ceiling-light'
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+          - entity: light.nastolnaia_lampa
+            hold_action:
+              action: more-info
+            icon: 'mdi:desk-lamp'
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+          - entity: light.kladovka
+            hold_action:
+              action: more-info
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+          - entity: light.gostinaia
+            hold_action:
+              action: more-info
+            icon: 'mdi:ceiling-light'
+            show_icon: true
+            show_name: true
+            tap_action:
+              action: toggle
+            type: entity-button
+        type: horizontal-stack
+      - entities:
+          - entity: binary_sensor.vkhodnaia_dver
+            secondary_info: last-changed
+          - entity: camera.podezd
+          - entity: binary_sensor.domofon
+            secondary_info: last-changed
+          - entity: sensor.datchik_shuma
+          - entity: sensor.shum
+        show_header_toggle: false
+        title: Входная группа
+        type: entities
+      - entities:
+          - entity: sensor.temp_kukhnia
+          - entity: sensor.temp_gostinaia
+          - entity: sensor.temp_bat_spalni
+        title: Температура в квартире
+        type: glance
+      - entities:
+          - entity: sensor.water_cold_counter_m3
+          - entity: sensor.water_hot_counter_m3
+          - entity: sensor.temp_gor_truby
+          - entity: sensor.temp_khol_truby
+          - entity: cover.voda
+        show_header_toggle: false
+        title: Приборы учета
+        type: entities
+      - entities:
+          - entity: sensor.temp_na_ulitse
+          - entity: sensor.vlazhnost_na_ulitse
+          - entity: sensor.illuminance
+          - entity: weather.font8
+        show_header_toggle: false
+        theme: default
+        title: Улица
+        type: glance
+    icon: 'mdi:home-heart'
+    path: default_view
+    theme: default
+    title: Home
+  - badges: []
+    cards:
+      - entities:
+          - entity: sensor.routeros_wireless
+          - entity: sensor.speedtest_download
+          - entity: sensor.speedtest_upload
+          - entity: sensor.speedtest_ping
+        title: Интернет
+        type: glance
+      - entities:
+          - entity: sensor.temp_gostinaia
+          - entity: sensor.temp_bat_spalni
+          - entity: sensor.owm_temperature
+        hours_to_show: 80
+        title: Изм. температуры
+        type: history-graph
+      - entities:
+          - entity: sensor.speedtest_download
+          - entity: sensor.speedtest_upload
+        hours_to_show: 80
+        title: Интернет
+        type: history-graph
+    icon: 'mdi:history'
+    theme: default
+    title: History
