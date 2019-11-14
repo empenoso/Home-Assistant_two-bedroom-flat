@@ -1,5 +1,6 @@
-# Полная автоматизация двухкомнатной квартиры :department_store: c помощью Home Assistant, MegaD-2561, Sonoff и Electrodragon
-В репозитории представлена полная конфигурация [Home Assistant](https://github.com/home-assistant/hassio) для всех устройств в квартире.
+# Full automation of a two-room apartment :department_store: using Home Assistant, MegaD-2561, Sonoff and Electrodragon
+
+The repository presents the complete configuration of [Home Assistant](https://github.com/home-assistant/hassio) for all devices in the apartment.
 
 Read this in other languages: [English](README.md), [Русский язык](README.ru.md).
 
