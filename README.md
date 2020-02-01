@@ -10,6 +10,8 @@ Automation was done using the [Wifi IoT Relay Board Based on ESP8266](https://ww
 
 Details, photos and diagrams on the [forum (in Russian)](https://www.ab-log.ru/forum/viewtopic.php?f=1&t=1208&start=480#p37003). 
 
+Additional information [in the article (in Russian)](https://habr.com/ru/post/485848/).
+
 Current view of the Home Assistant interface:
 ![Current view of the Home Assistant interface](https://github.com/empenoso/two-bedroom-flat-Home-Assistant/blob/master/2019_11_screenshot.png)
 _________
