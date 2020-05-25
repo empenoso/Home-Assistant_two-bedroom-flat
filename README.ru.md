@@ -11,8 +11,6 @@ ______________
 - [Умная хрущёвка на максималка](https://habr.com/ru/post/503646/). 
 - [Как я 1000 дней пользовался OpenHAB, а затем перешел на Home Assistant](https://habr.com/ru/post/485848/). 
 
-Подробности, фотографии и схемы на [форуме](https://www.ab-log.ru/forum/viewtopic.php?f=1&t=1208&start=480#p37003).
-
 Текущий вид интерфейса Home Assistant:
 ![Текущий вид интерфейса Home Assistant](https://github.com/empenoso/two-bedroom-flat-Home-Assistant/blob/master/2019_11_screenshot.png)
 _________
