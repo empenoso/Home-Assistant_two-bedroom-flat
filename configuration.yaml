@@ -36,21 +36,11 @@ recorder:
       - automation_triggered
       - script_started
       - timer_out_of_sync  
+    entity_globs:
+      -sensor.openweathermap_*
     entities:
       - sensor.date_time
       - sensor.time
-
-###################################################
-#                                                 #
-#                     Panel                       #
-#                                                 #
-################################################### 
-
-panel_iframe:
-  tasmoadmin:
-    title: TasmoAdmin
-    icon: mdi:car-esp
-    url: http://192.168.8.8:9541/devices
 
 ####################################################
 #                                                  #
@@ -77,7 +67,7 @@ sensor:
   - platform: command_line
     name: "Освещенность улицы"
     command: "/usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=0&scl=1&i2c_dev=max44009'"
-    value_template: '{{ (value|float) | round(1) }}'
+    value_template: "{{ regex_findall_index('\\d+') | round(1) }}" #(value | float)
     scan_interval: 300
   - platform: mqtt
     name: "Темп. на улице"
@@ -143,11 +133,11 @@ sensor:
     state_topic: "megad/7/36"
     value_template: "{{ (value_json.value|float/1023*3.3*50) | round(1) }}"    
     unit_of_measurement: "dBA"
-  - platform: command_line
-    name: "Импульсы э/счётчика"
-    command: "/usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=10&cmd=get'"
-    value_template: "{{ value | replace('OFF/','') | float | round (1) }}"
-    scan_interval: 200
+#   - platform: command_line
+#     name: "Импульсы э/счётчика в кВт*ч"
+#     command: "/usr/bin/curl -X GET 'http://192.168.8.7/sec/?pt=10&cmd=get'"
+#     value_template: "{{ value | replace('OFF/','') | int(value,16) / 3200 }}"
+#     scan_interval: 200
 
   - platform: filter
     name: "Шум"
@@ -181,8 +171,8 @@ sensor:
             value_template: "{{ (states('counter.water_hot_counter') | float)/1000 }}"  
         energy_counter:
             friendly_name: "Счетчик э/э"
-            unit_of_measurement: ''
-            value_template: "{{ (states('energy_counter') | float)/1 }}"  
+            unit_of_measurement: 'кВт*ч'
+            value_template: "{{ (states('counter.energy_counter') | float) / 1 }}"  
         illuminance:
             friendly_name: "Освещенность улицы"
             device_class: illuminance
@@ -238,7 +228,7 @@ binary_sensor:
     payload_on: "ON"
     payload_off: "OFF"
   - platform: mqtt
-    name: "Счетчик э/э"
+    name: "Счетчик импульсов э/э"
     device_class: opening
     state_topic: "megad/7/10"
     value_template: "{{ value_json.value }}"
@@ -378,14 +368,17 @@ cover:
 
 counter:
   water_cold_counter:
-    initial: 132699
+    icon: mdi:counter
+    initial: 162935
     step: 10
   water_hot_counter:
-    initial: 76983
+    icon: mdi:counter
+    initial: 113387
     step: 10
   energy_counter:
-    initial: 22029
-    step: 1
+    icon: mdi:counter
+    initial: 31326
+    step: 50
 
 rest_command:
   display_send_time:
@@ -401,7 +394,7 @@ rest_command:
   display_send_weather_small:
     url: 'http://192.168.8.7/sec/?pt=3&text=_Weather&col=30&row=0'
   reset_pulse_value:
-    url: 'http://192.168.8.7/sec/?pt=10&cnt=0'
+    url: 'http://192.168.8.7/sec/?pt=10&cnt=63935' # 65535 (максимальное значение порта) - 3200/2 (1 кВт*ч - 3200 импульсов)
 
 camera:
 - platform: ffmpeg
