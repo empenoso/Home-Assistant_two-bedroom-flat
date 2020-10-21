@@ -331,6 +331,17 @@ light:
     payload_off: "OFF"
     payload_available: "Online"
     payload_not_available: "Offline"
+  - platform: group
+    name: "Всё освещение"
+    entities:
+      - light.koridor
+      - light.tualet
+      - light.vanna
+      - light.kukhnia
+      - light.gostinaia
+      - light.kladovka
+      - light.nastolnaia_lampa
+      - light.spalnia
 
 ####################################################
 #                                                  #
