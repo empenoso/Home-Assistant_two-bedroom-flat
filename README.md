@@ -11,6 +11,6 @@ Automation was done using the [Wifi IoT Relay Board Based on ESP8266](https://ww
 Additional information in the articles (in Russian): [first](https://habr.com/en/post/503646/), [second](https://habr.com/en/post/485848/) and [third](https://habr.com/en/post/506550/).
 
 Current view of the Home Assistant interface:
-![Current view of the Home Assistant interface](https://github.com/empenoso/two-bedroom-flat-Home-Assistant/blob/master/2019_11_screenshot.png)
+![Current view of the Home Assistant interface](https://github.com/empenoso/two-bedroom-flat-Home-Assistant/blob/master/2020_10_screenshot.png)
 _________
 :sound: Plan to migrate firmware [ESPHome](https://github.com/esphome/esphome).
