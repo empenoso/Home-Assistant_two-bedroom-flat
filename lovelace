@@ -75,6 +75,12 @@ views:
               action: toggle
             type: entity-button
         type: horizontal-stack
+      - type: button
+        tap_action:
+          action: toggle
+        entity: light.vsio_osveshchenie
+        icon_height: 37px
+        icon: 'mdi:lightbulb-group-outline'
       - entities:
           - entity: binary_sensor.vkhodnaia_dver
             secondary_info: last-changed
