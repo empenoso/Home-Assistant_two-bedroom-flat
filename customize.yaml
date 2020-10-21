@@ -1,4 +1,6 @@
 ## Настроки иконок и видимости ##
+sensor.shum:
+    icon: mdi:soundcloud
 sensor.water_cold_counter_m3:
     icon: mdi:counter
 sensor.water_hot_counter_m3:
