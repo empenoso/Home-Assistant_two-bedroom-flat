@@ -97,7 +97,7 @@
         payload: "OFF"
     - service: mqtt.publish
       data:
-        topic: "cmnd/Table_lamp/POWER"
+        topic: "cmnd/TableLamp/POWER"
         payload: "OFF"
     - service: mqtt.publish
       data:
