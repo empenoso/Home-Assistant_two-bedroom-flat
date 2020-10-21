@@ -97,7 +97,7 @@
         payload: "OFF"
     - service: mqtt.publish
       data:
-        topic: "cmnd/Table_lamp/POWER1"
+        topic: "cmnd/Table_lamp/POWER"
         payload: "OFF"
     - service: mqtt.publish
       data:
@@ -176,3 +176,22 @@
   action:
     - service: counter.increment
       entity_id: counter.water_hot_counter
+
+###################################################
+#                                                 #
+#            Счетчик э/энергии                    #
+#                                                 #
+################################################### 
+
+- alias: Energy count # вариант без счётчика: https://community.home-assistant.io/t/counter-issue/132204/5
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.schetchik_impulsov_e_e
+      from: 'off'
+      to: 'on'
+  condition: []
+  action:
+    - service: counter.increment
+      entity_id: counter.energy_counter
+    - service: rest_command.reset_pulse_value
+
