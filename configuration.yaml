@@ -172,7 +172,7 @@ sensor:
         energy_counter:
             friendly_name: "Счетчик э/э"
             unit_of_measurement: 'кВт*ч'
-            value_template: "{{ (states('counter.energy_counter') | float) / 1 }}"  
+            value_template: "{{ (states('counter.energy_counter') | float) / 10 }}"  
         illuminance:
             friendly_name: "Освещенность улицы"
             device_class: illuminance
