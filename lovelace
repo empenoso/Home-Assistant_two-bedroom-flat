@@ -1,4 +1,4 @@
-title: ХХХХХ
+title: Фонтанная 8
 views:
   - badges: []
     cards:
@@ -38,17 +38,6 @@ views:
               action: toggle
             type: entity-button
         type: horizontal-stack
-      - entity: group.all_lights
-        hold_action:
-          action: more-info
-        icon: 'mdi:close-circle-outline'
-        icon_height: 37px
-        name: ВКЛ/ВЫКЛ всё освещение
-        show_icon: true
-        show_name: true
-        tap_action:
-          action: toggle
-        type: entity-button
       - cards:
           - entity: light.spalnia
             hold_action:
@@ -92,7 +81,6 @@ views:
           - entity: camera.podezd
           - entity: binary_sensor.domofon
             secondary_info: last-changed
-          - entity: sensor.datchik_shuma
           - entity: sensor.shum
         show_header_toggle: false
         title: Входная группа
@@ -104,6 +92,7 @@ views:
         title: Температура в квартире
         type: glance
       - entities:
+          - entity: sensor.energy_counter
           - entity: sensor.water_cold_counter_m3
           - entity: sensor.water_hot_counter_m3
           - entity: sensor.temp_gor_truby
@@ -112,11 +101,12 @@ views:
         show_header_toggle: false
         title: Приборы учета
         type: entities
+        state_color: false
       - entities:
           - entity: sensor.temp_na_ulitse
           - entity: sensor.vlazhnost_na_ulitse
           - entity: sensor.illuminance
-          - entity: weather.font8
+          - entity: weather.openweathermap
         show_header_toggle: false
         theme: default
         title: Улица
@@ -150,3 +140,21 @@ views:
     icon: 'mdi:history'
     theme: default
     title: History
+  - visible:
+      - user: b391cab6b1474dbfa5005b152d8d6cad
+    icon: 'mdi:robot'
+    title: Automation
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - entity: sensor.time
+          - entity: sensor.date_time
+          - entity: automation.camera_reboot
+          - entity: automation.energy_count
+          - entity: automation.cold_water_count
+          - entity: automation.hot_water_count
+          - entity: automation.mega_mqtt_sensor
+          - entity: automation.sonoff_state_on_ha_start_up
+          - entity: automation.time_to_display
+          - entity: automation.turn_off_all
